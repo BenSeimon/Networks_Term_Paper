@@ -5,6 +5,9 @@ name = "pypi"
 
 [packages]
 igraph = "*"
+networkx = "*"
+matplotlib = "*"
+graphviz = "*"
 
 [dev-packages]
 
