@@ -8,6 +8,8 @@ igraph = "*"
 networkx = "*"
 matplotlib = "*"
 graphviz = "*"
+numpy = "*"
+pandas = "*"
 
 [dev-packages]
 
