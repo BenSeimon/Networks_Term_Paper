@@ -71,7 +71,7 @@ class Link(object):
         self.link_id = None
         self.length = 0.0
         self.capacity = 0.0
-        self.alpha = 0.2 #adapted to align with Youn et al - originally 0.5
+        self.alpha = 0.15 #adapted to align with Youn et al - originally 0.5
         self.beta = 10. #adapted to aligh with Youn et al - originally 4
         self.from_node = 0
         self.to_node = 0
@@ -213,6 +213,7 @@ class Network():
         self.node_file = node_file
         self.graph = None
         self.SO = SO
+        self.Visualization = self.Visualization()
 
         self.build_datastructure()
 
@@ -230,7 +231,7 @@ class Network():
 
         if self.node_file != None:
             self.open_node_file(graph)
-            Visualization.reLocateLinks(graph)
+            self.Visualization.reLocateLinks(graph)
         self.graph = graph
 
 
@@ -300,16 +301,9 @@ class Network():
             row = i.split("	")
             if n == 0:
                 n += 1
-
             else:
-                try:
-                    if self.node_file == "berlin-center_node.tntp":
-                        ind, x, y = str(int(row[0])), float(row[1]), float(row[3])
-                    else:
-                        ind, x, y = str(int(row[0])), float(row[1]), float(row[2])
-                    graph.node[ind]["pos"] = (x, y)
-                except:
-                    print(row)
+                ind, x, y = row[0], float(row[1]), float(row[2])
+                graph.nodes[ind]["pos"] = (x, y)
         f.close()
 
     def open_trip_file(self, demand_factor=1.0):
@@ -384,74 +378,74 @@ class Network():
             self.graph[u][v]["weight"] = d["object"].time
 
 
-class Visualization():
-    """
-    Class for handling visualization effect
-    """
+    class Visualization():
+        """
+        Class for handling visualization effect
+        """
+        def reLocateLinks(self, graph):
+            """
+            Method for modifying links in graph
 
-    def reLocateLinks(graph):
-        """
-        Method for modifying links in graph
-        
-        Parameter
-        ---------
-        graph:  networkx DiGraph
-                graph to present
-        """
-        nodeposition = nx.get_node_attributes(graph, "pos")
-        for edge in graph.edges():
-            snode, enode = edge[0], edge[1]
-            px1, py1 = nodeposition[snode][0], nodeposition[snode][1]
-            px2, py2 = nodeposition[enode][0], nodeposition[enode][1]
-            fx, fy, tx, ty = Visualization.reLocateAlink(px1, py1, px2, py2, offset=5000)
-            graph[snode][enode]["pos_fnode"] = (fx, fy)
-            graph[snode][enode]["pos_tnode"] = (tx, ty)
+            Parameter
+            ---------
+            graph:  networkx DiGraph
+                    graph to present
+            """
+            nodeposition = nx.get_node_attributes(graph, "pos")
+            for edge in graph.edges():
+                snode, enode = edge[0], edge[1]
+                px1, py1 = nodeposition[snode][0], nodeposition[snode][1]
+                px2, py2 = nodeposition[enode][0], nodeposition[enode][1]
+                fx, fy, tx, ty = self.reLocateAlink(px1, py1, px2, py2)
+                graph[snode][enode]["pos_fnode"] = (fx, fy)
+                graph[snode][enode]["pos_tnode"] = (tx, ty)
 
-    def reLocateAlink(px1, py1, px2, py2, offset=0.5):
-        """
-        Method for adjusting location of a link
-        
-        Parameters
-        ----------
-        px1:    float
-                x coordinate of a node
-                
-        py1:    float
-                y coordinate of a node
-                
-        px2:    float
-                x coordinate of another node
-                
-        py2:    float
-                y coordinate of another node
-        Returns
-        -------
-        fx:     float
-                new coordinate of px1
-        
-        fy:     float
-                new coordinate of py1
-                
-        tx:     float
-                new coordinate of px2
-        
-        ty:     float
-                new coordinate of py2
-        """
-        x1, y1 = float(px1), float(py1)
-        x2, y2 = float(px2), float(py2)
-        dist = (x1 - x2) ** 2 + (y1 - y2) ** 2
-        dist = abs(dist ** 0.5)
-        sin = (y2 - y1) / dist
-        cos = (x2 - x1) / dist
-        if x2 - x1 != 0:
-            tan = (y2 - y1) / (x2 - x1)
-        else:
-            tan = 1
-        if abs(tan) >= 1:
-            fx, fy = x1 + offset * sin, y1 - offset * cos
-            tx, ty = x2 + offset * sin, y2 - offset * cos
-        else:
-            fx, fy = x1 + offset * sin, y1 - offset * cos
-            tx, ty = x2 + offset * sin, y2 - offset * cos
-        return fx, fy, tx, ty
+        def reLocateAlink(self, px1, py1, px2, py2):
+            """
+            Method for adjusting location of a link
+
+            Parameters
+            ----------
+            px1:    float
+                    x coordinate of a node
+
+            py1:    float
+                    y coordinate of a node
+
+            px2:    float
+                    x coordinate of another node
+
+            py2:    float
+                    y coordinate of another node
+            Returns
+            -------
+            fx:     float
+                    new coordinate of px1
+
+            fy:     float
+                    new coordinate of py1
+
+            tx:     float
+                    new coordinate of px2
+
+            ty:     float
+                    new coordinate of py2
+            """
+            offset = 5000
+            x1, y1 = float(px1), float(py1)
+            x2, y2 = float(px2), float(py2)
+            dist = (x1 - x2) ** 2 + (y1 - y2) ** 2
+            dist = abs(dist ** 0.5)
+            sin = (y2 - y1) / dist
+            cos = (x2 - x1) / dist
+            if x2 - x1 != 0:
+                tan = (y2 - y1) / (x2 - x1)
+            else:
+                tan = 1
+            if abs(tan) >= 1:
+                fx, fy = x1 + offset * sin, y1 - offset * cos
+                tx, ty = x2 + offset * sin, y2 - offset * cos
+            else:
+                fx, fy = x1 + offset * sin, y1 - offset * cos
+                tx, ty = x2 + offset * sin, y2 - offset * cos
+            return fx, fy, tx, ty

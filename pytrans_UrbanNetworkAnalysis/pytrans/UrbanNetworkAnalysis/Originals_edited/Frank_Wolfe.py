@@ -176,9 +176,9 @@ class Run:
             aux = linkVal['auxiliary'][-1]
             flow = linkVal['flow'][-1]
             
-            if SO == False:
+            if self.SO == False:
                 z += integrate.quad(lambda x: self.BPR(t0, x, ca, alpha, beta), 0, flow+theta*(aux-flow))[0]
-            elif SO == True:
+            elif self.SO == True:
                 z += list(map(lambda x : x * self.BPR(t0, x, ca, alpha, beta), [flow+theta*(aux-flow)]))[0]
         return z
     
@@ -206,21 +206,19 @@ class Run:
         Method for presenting the traffic assignment result on a map
         """
         edgewidth = [d['object'].vol/5000 for (u, v, d) in self.graph.edges(data=True)]
-    
-        if node_file != None:
-            plt.figure(num = 1, figsize=(10,10))
-            plt.axis('off')
+        plt.figure(num = 1, figsize=(10,10))
+        plt.axis('off')
             
-            pos = nx.get_node_attributes(self.graph, "pos")
+        pos = nx.get_node_attributes(self.graph, "pos")
         
-            nx.draw_networkx_edges(self.graph, pos, width=edgewidth)
-            nx.draw_networkx_edge_labels(self.graph, pos, \
+        nx.draw_networkx_edges(self.graph, pos, width=edgewidth)
+        nx.draw_networkx_edge_labels(self.graph, pos, \
                                          edge_labels={(u, v): round(d["object"].vol,0) for u, v, d in self.graph.edges(data=True)}, \
                                          font_size=8, label_pos=0.3, alpha=0.)
-            nx.draw_networkx_nodes(self.graph, pos, with_labels=True)
-            nx.draw_networkx_labels(self.graph, pos, font_size=10)
+        nx.draw_networkx_nodes(self.graph, pos)
+        nx.draw_networkx_labels(self.graph, pos, font_size=10)
         
-            plt.show()
+        plt.show()
             
 
 if __name__ == "__main__":
