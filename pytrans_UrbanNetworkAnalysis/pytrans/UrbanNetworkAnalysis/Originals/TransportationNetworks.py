@@ -127,7 +127,7 @@ class Link(object):
             print(flow, self.length, self.free_speed, self.capacity, beta)
             raise
     def gettotalcost_l(self, flow):
-        return float(flow)*self.bpr(flow=flow)
+        return float(flow)*self.Link.bpr(flow=flow)
     def getmarginalcost_l(self, v):
         return derivative(self.gettotalcost_l, v)
     @property
