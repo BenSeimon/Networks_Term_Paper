@@ -72,7 +72,7 @@ class Link(object):
         self.length = 0.0
         self.capacity = 0.0
         self.alpha = 0.15 #adapted to align with Youn et al - originally 0.5
-        self.beta = 10. #adapted to aligh with Youn et al - originally 4
+        self.beta = 4. #adapted to aligh with Youn et al - originally 4
         self.from_node = 0
         self.to_node = 0
         self.flow = 0.0
