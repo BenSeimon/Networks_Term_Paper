@@ -207,13 +207,14 @@ class Network():
     link_fields = {"from": 1, "to": 2, "capacity": 3, "length": 4, "t0": 5, \
                    "B": 6, "beta": 7, "V": 8}
 
-    def __init__(self, link_file, trip_file, node_file=None, SO=False):
+    def __init__(self, remove_link, link_file, trip_file, node_file=None, SO=False):
         self.link_file = link_file
         self.trip_file = trip_file
         self.node_file = node_file
         self.graph = None
         self.SO = SO
         self.Visualization = self.Visualization()
+        self.remove_link = remove_link
 
         self.build_datastructure()
 
@@ -250,7 +251,10 @@ class Network():
         f = open(self.link_file)
         lines = f.readlines()
         f.close()
-
+        
+        if self.remove_link > 0:
+            remove_link = -self.remove_link
+            del lines[remove_link]
         links_info = []
 
         header_found = False

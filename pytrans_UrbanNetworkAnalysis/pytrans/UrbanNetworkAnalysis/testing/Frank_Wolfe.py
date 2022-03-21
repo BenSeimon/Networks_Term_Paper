@@ -54,7 +54,7 @@ class Run:
     >>> fw.showODFlow()
     >>> fw.showODFlowMap()
     """
-    def __init__(self, link_file, trip_file, node_file, SO):
+    def __init__(self, network_object, SO):
 
         """
 
@@ -64,34 +64,33 @@ class Run:
         :param SO: Whether the objective function is of System Optimum or not (User Equilibrium)
         """
         self.SO = SO
-        
-        nw = tn.Network(link_file, trip_file, node_file, self.SO)
+        self.nw = network_object
 
         ## initialization
         self.network = {(u,v): {'t0':d['object'].t0, 'alpha':d['object'].alpha, \
                    'beta':d['object'].beta, 'capa':d['object'].capacity, 'flow':[], \
-                   'auxiliary':[], 'cost':[]} for (u, v, d) in nw.graph.edges(data=True)}
+                   'auxiliary':[], 'cost':[]} for (u, v, d) in self.nw.graph.edges(data=True)}
         
         self.fwResult = {'theta':[], 'z':[]}
         
-        nw.all_or_nothing_assignment()
-        nw.update_linkcost()
+        self.nw.all_or_nothing_assignment()
+        self.nw.update_linkcost()
         
         for linkKey, linkVal in self.network.items():
-            linkVal['cost'].append(nw.graph[linkKey[0]][linkKey[1]]['weight'])
-            linkVal['auxiliary'].append(nw.graph[linkKey[0]][linkKey[1]]['object'].vol)
-            linkVal['flow'].append(nw.graph[linkKey[0]][linkKey[1]]['object'].vol)
+            linkVal['cost'].append(self.nw.graph[linkKey[0]][linkKey[1]]['weight'])
+            linkVal['auxiliary'].append(self.nw.graph[linkKey[0]][linkKey[1]]['object'].vol)
+            linkVal['flow'].append(self.nw.graph[linkKey[0]][linkKey[1]]['object'].vol)
             
         ## iterations
         iterNum=0
         iteration = True
         while iteration:
             iterNum += 1
-            nw.all_or_nothing_assignment()
-            nw.update_linkcost()
+            self.nw.all_or_nothing_assignment()
+            self.nw.update_linkcost()
             
             for linkKey, linkVal in self.network.items():
-                linkVal['auxiliary'].append(nw.graph[linkKey[0]][linkKey[1]]['object'].vol)
+                linkVal['auxiliary'].append(self.nw.graph[linkKey[0]][linkKey[1]]['object'].vol)
                 
             theta = self.lineSearch()
             self.fwResult['theta'].append(theta)
@@ -101,16 +100,16 @@ class Run:
                 flow = linkVal['flow'][-1]
                 linkVal['flow'].append(flow + theta*(aux-flow))
                 
-                nw.graph[linkKey[0]][linkKey[1]]['object'].vol =  flow + theta * (aux - flow)
-                nw.graph[linkKey[0]][linkKey[1]]['object'].flow = flow + theta * (aux - flow)
+                self.nw.graph[linkKey[0]][linkKey[1]]['object'].vol =  flow + theta * (aux - flow)
+                self.nw.graph[linkKey[0]][linkKey[1]]['object'].flow = flow + theta * (aux - flow)
                 
             
-            nw.update_linkcost()
+            self.nw.update_linkcost()
             
             z=0
             for linkKey, linkVal in self.network.items():
-                linkVal['cost'].append(nw.graph[linkKey[0]][linkKey[1]]['weight'])
-                totalcost = nw.graph[linkKey[0]][linkKey[1]]['object'].get_objective_function()
+                linkVal['cost'].append(self.nw.graph[linkKey[0]][linkKey[1]]['weight'])
+                totalcost = self.nw.graph[linkKey[0]][linkKey[1]]['object'].get_objective_function()
                 z+=totalcost
                 
             self.fwResult['z'].append(z)        
@@ -121,7 +120,7 @@ class Run:
                 if abs(self.fwResult['z'][-2] - self.fwResult['z'][-1]) <= 0.001 or iterNum==3000:
                     iteration = False
             
-        self.graph = nw.graph
+        self.graph = self.nw.graph
                     
     def BPR(self, t0, xa, ca, alpha, beta):
         """
