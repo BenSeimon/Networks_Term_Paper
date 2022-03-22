@@ -207,7 +207,7 @@ class Network():
     link_fields = {"from": 1, "to": 2, "capacity": 3, "length": 4, "t0": 5, \
                    "B": 6, "beta": 7, "V": 8}
 
-    def __init__(self, remove_link, link_file, trip_file, node_file=None, SO=False):
+    def __init__(self, city, remove_link, link_file, trip_file, node_file=None, SO=False):
         self.link_file = link_file
         self.trip_file = trip_file
         self.node_file = node_file
@@ -215,6 +215,7 @@ class Network():
         self.SO = SO
         self.Visualization = self.Visualization()
         self.remove_link = remove_link
+        self.city = city
 
         self.build_datastructure()
 
@@ -302,7 +303,11 @@ class Network():
         f = open(self.node_file)
         n = 0
         for i in f:
-            row = i.split("	")
+            if self.city = 'SiouxFalls':
+                row = i.split("	")
+            elif self.city = 'friedrichshain-center':
+                row = i.replace('	','').strip().split('  ')
+            
             if n == 0:
                 n += 1
             else:
