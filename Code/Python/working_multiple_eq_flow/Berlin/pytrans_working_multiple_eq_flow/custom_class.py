@@ -53,18 +53,21 @@ class fw_custom_algorithm():
         Network = tn.Network(remove_link_number, link_file, trip_file, node_file) 
         self.cities_dict[city][str(remove_link_number)] = {'network': Network}
     
-    def make_network_shut_each_link(self, city): 
-        #max_edges = 10 #for a trial 
-        max_edges =  self.cities_dict[city]['csv'].shape[0] #get max edges in network for a city
-        #iterate over edges
-        for edge in range(0, max_edges+1):
-            #instatiate class for network with one file removed using required files 
-            if self.cities_dict[city]['csv'].iloc[-edge]['length'] != 0:            
+    def make_network_shut_each_link(self, city):
+        #max_edges = self.cities_dict[city]['csv'].shape[0]
+        max_edges = 4 #for a trial 
+        for edge in range(0, max_edges):
+            if self.cities_dict[city]['csv'].iloc[edge]['length'] > 0:
                 link_file = self.cities_dict[city]['file_paths']['link_file_path']
                 trip_file = self.cities_dict[city]['file_paths']['trip_file_path']
                 node_file = self.cities_dict[city]['file_paths']['node_file_path']
                 Network = tn.Network(edge, link_file, trip_file, node_file) 
                 self.cities_dict[city][str(edge)] = {'network': Network}
+            else:
+                init_node_zero_length = self.cities_dict[city]['csv'].iloc[-edge]['init_node']
+                term_node_zero_length = self.cities_dict[city]['csv'].iloc[-edge]['term_node']
+                print('Link that connects', init_node_zero_length, 'and', term_node_zero_length, 'has length 0')
+            
             
     def network_attributes(self, city, remove_link_number):
         network = self.cities_dict[city][str(remove_link_number)]['network']
@@ -88,12 +91,16 @@ class fw_custom_algorithm():
         self.cities_dict[city][str(remove_link_number)]['fw_run'] = fw
         
     def eq_flow_shut_each_link(self, city):
-        max_edges = len(self.cities_dict[city]['0']['network'].graph.edges)#get max edges in network for a city
-        #max_edges = 10 #for a trial 
+        #max_edges = len(self.cities_dict[city]['0']['network'].graph.edges)#get max edges in network for a city
+        max_edges = 4 #for a trial 
         #iterate over edges
-        for edge in range(0, max_edges+1):
-            if self.cities_dict[city]['csv'].iloc[-edge]['length'] != 0:
+        for edge in range(0, max_edges):
+            if self.cities_dict[city]['csv'].iloc[edge]['length'] > 0:
                 self.compute_link_flow(city, edge)
+            else:
+                init_node_zero_length = self.cities_dict[city]['csv'].iloc[-edge]['init_node']
+                term_node_zero_length = self.cities_dict[city]['csv'].iloc[-edge]['term_node']
+                print('Link that connects', init_node_zero_length, 'and', term_node_zero_length, 'has length 0')
             
     def network_centrality(self, city, removed_link):
         density = nx.density(cities_dict[city][str(remove_link)]['network'].graph)

@@ -251,10 +251,7 @@ class Network():
         f = open(self.link_file)
         lines = f.readlines()
         f.close()
-        
-        if self.remove_link > 0:
-            chosen_link_for_removal = -self.remove_link #negative to upwards from bottom of file
-            del lines[chosen_link_for_removal]
+            
         links_info = []
 
         header_found = False
@@ -263,6 +260,11 @@ class Network():
                 header_found = True
             elif header_found:
                 links_info.append(line)
+
+        if self.remove_link == None:
+            print("No links removed")
+        else:
+            del links_info[self.remove_link]
 
         nodes = {}
         links = []

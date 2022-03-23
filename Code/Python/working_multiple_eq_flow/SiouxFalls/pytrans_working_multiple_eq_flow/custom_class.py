@@ -57,7 +57,7 @@ class fw_custom_algorithm():
         #max_edges = 10 #for a trial 
         max_edges =  self.cities_dict[city]['csv'].shape[0] #get max edges in network for a city
         #iterate over edges
-        for edge in range(0, max_edges+1):
+        for edge in range(0, max_edges):
             #instatiate class for network with one file removed using required files 
             link_file = self.cities_dict[city]['file_paths']['link_file_path']
             trip_file = self.cities_dict[city]['file_paths']['trip_file_path']
@@ -90,6 +90,6 @@ class fw_custom_algorithm():
         max_edges = len(self.cities_dict[city]['0']['network'].graph.edges)#get max edges in network for a city
         #max_edges = 10 #for a trial 
         #iterate over edges
-        for edge in range(0, max_edges+1):
+        for edge in range(0, max_edges):
             self.compute_link_flow(city, edge)
 
