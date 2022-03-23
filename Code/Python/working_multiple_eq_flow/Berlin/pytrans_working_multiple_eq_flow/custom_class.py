@@ -54,8 +54,8 @@ class fw_custom_algorithm():
         self.cities_dict[city][str(remove_link_number)] = {'network': Network}
     
     def make_network_shut_each_link(self, city):
-        #max_edges = self.cities_dict[city]['csv'].shape[0]
-        max_edges = 4 #for a trial 
+        max_edges = self.cities_dict[city]['csv'].shape[0]
+        #max_edges = 4 #for a trial 
         for edge in range(0, max_edges):
             if self.cities_dict[city]['csv'].iloc[edge]['length'] > 0:
                 link_file = self.cities_dict[city]['file_paths']['link_file_path']
@@ -91,8 +91,8 @@ class fw_custom_algorithm():
         self.cities_dict[city][str(remove_link_number)]['fw_run'] = fw
         
     def eq_flow_shut_each_link(self, city):
-        #max_edges = len(self.cities_dict[city]['0']['network'].graph.edges)#get max edges in network for a city
-        max_edges = 4 #for a trial 
+        max_edges = len(self.cities_dict[city]['None']['network'].graph.edges)#get max edges in network for a city
+        #max_edges = 4 #for a trial 
         #iterate over edges
         for edge in range(0, max_edges):
             if self.cities_dict[city]['csv'].iloc[edge]['length'] > 0:
