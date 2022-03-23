@@ -28,6 +28,7 @@ class fw_custom_algorithm():
             csv.columns = trimmed
             # And drop the silly first andlast columns
             csv.drop(['~', ';'], axis=1, inplace=True)
+            csv = csv[csv['length'] > 0]
             self.cities_dict[city]['csv'] = csv        
     
     def plot(self, city):
