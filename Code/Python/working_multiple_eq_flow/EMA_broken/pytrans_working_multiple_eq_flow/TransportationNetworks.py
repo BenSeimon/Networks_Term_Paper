@@ -261,11 +261,6 @@ class Network():
             elif header_found:
                 links_info.append(line)
 
-        if self.remove_link == None:
-            print("No links removed")
-        else:
-            del links_info[self.remove_link]
-
         nodes = {}
         links = []
 
@@ -294,6 +289,13 @@ class Network():
                      from_node=origin_node, to_node=to_node, flow=float(0.0), SO=self.SO)
 
             links.append(l)
+            
+            
+        if self.remove_link == None:
+            print("No links removed")
+        else:
+            del links[self.remove_link]
+                
         return links, nodes.values()
 
     def open_node_file(self, graph):

@@ -55,9 +55,21 @@ class fw_custom_algorithm():
     
     def make_network_shut_each_link(self, city): 
         #max_edges = 100 #for a trial 
-        max_edges =  self.cities_dict[city]['csv'].shape[0] #get max edges in network for a city
-        #iterate over edges
-        for edge in range(8, max_edges):
+        
+        #make the dataframe and extract the nodes with one outward edge
+        value_counts = self.cities_dict[city]['csv']['init_node'].value_counts(ascending = True).reset_index().rename(columns={"index": "init_node", "init_node": "origin_node_count"})
+        origin_nodes_to_remove = list(value_counts[value_counts['origin_node_count'] != 1]['init_node'])
+        csv = self.cities_dict[city]['csv']
+        #get edges_to_remove from csv file
+        origin_edges_to_remove = csv[csv['init_node'].isin(origin_nodes_to_remove)].index#this is custom here since we cannot remove links where the origin node only has one outward link --> unable to therefore compute the shortest path in the all or nothing assignment. 
+        value_counts = self.cities_dict[city]['csv']['term_node'].value_counts(ascending = True).reset_index().rename(columns={"index": "term_node", "term_node": "term_node_counts"})
+        term_nodes_to_remove = list(value_counts[value_counts['term_node_counts'] != 1]['term_node'])
+        csv = self.cities_dict[city]['csv']
+        term_edges_to_remove = csv[csv['term_node'].isin(term_nodes_to_remove)].index
+        test_origins = set(origin_edges_to_remove)
+        term_origins = set(term_edges_to_remove)
+        edges_to_remove = list(test_origins & term_origins)
+        for edge in edges_to_remove:
             #instatiate class for network with one file removed using required files 
             link_file = self.cities_dict[city]['file_paths']['link_file_path']
             trip_file = self.cities_dict[city]['file_paths']['trip_file_path']
@@ -87,10 +99,24 @@ class fw_custom_algorithm():
         self.cities_dict[city][str(remove_link_number)]['fw_run'] = fw
         
     def eq_flow_shut_each_link(self, city):
-        max_edges = self.cities_dict[city]['csv'].shape[0] #get max edges in network for a city
+        #max_edges = self.cities_dict[city]['csv'].shape[0] #get max edges in network for a city
         #max_edges = 100 #for a trial 
         #iterate over edges
-        for edge in range(8, max_edges):
+        value_counts = self.cities_dict[city]['csv']['init_node'].value_counts(ascending = True).reset_index().rename(columns={"index": "init_node", "init_node": "origin_node_count"})
+        origin_nodes_to_remove = list(value_counts[value_counts['origin_node_count'] != 1]['init_node'])
+        csv = self.cities_dict[city]['csv']
+        #get edges_to_remove from csv file
+        origin_edges_to_remove = csv[csv['init_node'].isin(origin_nodes_to_remove)].index#this is custom here since we cannot remove links where the origin node only has one outward link --> unable to therefore compute the shortest path in the all or nothing assignment. 
+        value_counts = self.cities_dict[city]['csv']['term_node'].value_counts(ascending = True).reset_index().rename(columns={"index": "term_node", "term_node": "term_node_counts"})
+        term_nodes_to_remove = list(value_counts[value_counts['term_node_counts'] != 1]['term_node'])
+        csv = self.cities_dict[city]['csv']
+        term_edges_to_remove = csv[csv['term_node'].isin(term_nodes_to_remove)].index
+        test_origins = set(origin_edges_to_remove)
+        term_origins = set(term_edges_to_remove)
+        edges_to_remove = list(test_origins & term_origins)
+        for edge in edges_to_remove:
+            print(edges_to_remove)
+            print(edge)
             self.compute_link_flow(city, edge)
             print('Computed equilibrium flow when removing edge:', edge)
 
